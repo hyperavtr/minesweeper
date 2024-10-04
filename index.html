@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Minesweeper</title>
+	<link rel="icon" type="image/png" sizes="64x64" href="./assets/icons/explosion.png">
+	<link href="./style.css" rel="stylesheet">
+</head>
+
+<body>
+	<!--BAR-->
+	<div class="bar__section-wrapper">
+		<!--TOGGLE BAR DISPLAY-->
+		<div class="bar__btn__container">
+			<button class="bar__btn-display-toggle" aria-label="show/hide bar"></button>
+		</div>
+		<div class="bar__container">
+			<!-- MAIN NAVIGATION BAR -->
+			<h1 class="navbar__title">Difficulty Level</h1>
+			<nav class="navbar" aria-label="Bar where to choose difficulty level">
+				<ul class="navbar__difficulty-levels">
+					<li><button class="navbar__btn-baby">Baby</button>
+					</li>
+					<li><button class="navbar__btn-intermediate">Intermediate</button></li>
+					<li><button class="navbar__btn-hell">Hell</button></li>
+					<li>
+						<fieldset class="navbar__nonsence-container">
+							<div class="navbar__input-container">
+								<div class="navbar__columns">
+									<label for="columns__input">C</label>
+									<input id="columns__input" type="number" name="columns" value="9">
+								</div>
+
+								<div class="navbar__rows">
+									<label for="rows__input">R</label>
+									<input id="rows__input" type="number" name="rows" value="9">
+								</div>
+								<div class="navbar__mines">
+									<label for="mines__input">M</label>
+									<input id="mines__input" type="number" name="mines" value="10">
+								</div>
+							</div>
+							<button class="navbar__btn-nonsence navbar__btn-nonsence--if-active">Make yourself
+								comfortable</button>
+						</fieldset>
+					</li>
+				</ul>
+			</nav>
+			<!-- SCALE -->
+			<fieldset class="zoom-bar__container">
+				<label class="zoom-bar__label" for="zoom-bar__input">Minesweeper's size</label>
+				<input type="number" class="zoom-bar__input" id="zoom-bar__input" placeholder="e.g. 0.9">
+			</fieldset>
+			<div class="toggle-switch__section-wrapper">
+				<h1 class="toggle-switch__title">Show/Hide</h1>
+				<div class="toggle-switch__container">
+					<label class="toggle-switch toggle-switch__awards">
+						<input class="toggle-switch__awards-checkbox" type="checkbox">
+						<span class="toggle-switch__slider state--round"></span>
+					</label>
+
+					<label class="toggle-switch toggle-switch__reference">
+						<input type="checkbox" class="toggle-switch__reference-info-checkbox">
+						<span class="toggle-switch__slider state--round"></span>
+					</label>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- AWARDS -->
+	<div class="awards__section-wrapper">
+		<button class="awards__toggle-btn" aria-label="Awards section's display toggle">
+			<img class="awards__toggle-icon" src="assets/icons/Chevron-Arrow.svg" alt="awards section's toggle button"
+				draggable="false">
+		</button>
+		<div class="awards">
+			<ul class="awards__chests">
+				<li class="awards__baby awards__chest">
+					<img class="awards__lock awards__lock-baby"
+						src="./assets/icons/chests-animation/common_chest_frame-1.png" alt="Closed lock"
+						draggable="false" data-zone="baby">
+				</li>
+				<li class="awards__intermediate awards__chest">
+					<img class="awards__lock awards__lock-intermediate"
+						src="./assets/icons/chests-animation/common_chest_frame-1.png" alt="Closed lock"
+						draggable="false" data-zone="intermediate">
+				</li>
+				<li class="awards__hell awards__chest">
+					<img class="awards__lock awards__lock-hell"
+						src="./assets/icons/chests-animation/common_chest_frame-1.png" alt="Closed lock"
+						draggable="false" data-zone="hell">
+				</li>
+				<li class="awards__nonsence awards__chest">
+					<img class="awards__lock awards__lock-nonsence"
+						src="./assets/icons/chests-animation/nonsence_chest_frame-1.png" alt="Closed lock"
+						draggable="false" data-zone="nonsence">
+				</li>
+			</ul>
+			<ul class="awards__keys">
+				<li class="awards__baby-key awards__key">
+				</li>
+				<li class="awards__intermediate-key awards__key">
+				</li>
+				<li class="awards__hell-key awards__key">
+				</li>
+				<li class="awards__nonsence-key awards__key">
+				</li>
+			</ul>
+		</div>
+	</div>
+	<!-- MINESWEEPER -->
+	<div class="minesweeper">
+		<div class="minesweeper__info-panel">
+			<div class="minesweeper__timer">
+				<div>
+					<span class="minesweeper__minutes--dozens">0</span>
+					<span class="minesweeper__minutes--ones">0</span>
+				</div>
+				<span>:</span>
+				<div>
+					<span class="minesweeper__seconds--dozens">0</span>
+					<span class="minesweeper__seconds--ones">0</span>
+				</div>
+			</div>
+			<button tabindex="-1" class="minesweeper__reset-btn"></button>
+			<div class="minesweeper__undelivered-flag">
+				<span class="minesweeper__counter"></span>
+			</div>
+		</div>
+		<div class="minesweeper__cell-field-container">
+			<div class="minesweeper__cell-field"></div>
+		</div>
+		<div class="minesweeper__action-panel state--hidden">
+			<label for="continue" class="minesweeper__continue-label">Cheat?</label>
+			<button id="continue" class="minesweeper__continue-btn"></button>
+		</div>
+	</div>
+	<!-- REFERENCE INFORMATION -->
+	<div class="reference-info__section-wrapper">
+		<button class="reference-info__toggle-btn" aria-label="display toggle reference information">
+			<img class="reference-info__toggle-icon" src="./assets/icons/Chevron-Arrow.svg"
+				alt="reference info's toggle icon" draggable="false">
+		</button>
+		<aside class="reference-info__container">
+			<div class="reference-info">
+				<h2 class="reference-info__title">Reference info </h2>
+				<ul class="reference-info__list">
+					<li class="reference-info__list-item">
+						<h3 class="reference-info__cell-title">Default cell</h3>
+						<div class="minesweeper__cell"></div>
+					</li>
+					<li class="reference-info__list-item">
+						<h3 class="reference-info__cell-title">Safely revealed cell</h3>
+						<div class="minesweeper__cell minesweeper__cell--revealed-safely"></div>
+					</li>
+					<li class="reference-info__list-item">
+						<h3 class="reference-info__cell-title">A Clue to finding the mine cell(s)</h3>
+						<div class="minesweeper__cell minesweeper__cell--revealed-safely">
+							<span class="minesweeper__cell--revealed-clue number--1">1</span>
+						</div>
+					</li>
+					<li class="reference-info__list-item">
+						<h3 class="reference-info__cell-title">Mine cell</h3>
+						<div class="minesweeper__cell minesweeper__cell--revealed-mine"></div>
+					</li>
+					<li class="reference-info__list-item">
+						<h3 class="reference-info__cell-title">Exploded mine cell</h3>
+						<div class="minesweeper__cell minesweeper__cell--revealed-mine minesweeper__cell--explosion">
+						</div>
+					</li>
+					<li class="reference-info__list-item">
+						<h3 class="reference-info__cell-title">Planted flag cell</h3>
+						<div class="minesweeper__cell minesweeper__cell--victory-flag"></div>
+					</li>
+					<li class="reference-info__list-item">
+						<h3 class="reference-info__cell-title">Right guessed mine cell</h3>
+						<div
+							class="minesweeper__cell minesweeper__cell--victory-flag minesweeper__cell--revealed-mine minesweeper__cell--victory-flag--guessed-right">
+						</div>
+					</li>
+				</ul>
+			</div>
+		</aside>
+	</div>
+	<script src="script.js"></script>
+</body>
+
+</html>
