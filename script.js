@@ -464,6 +464,8 @@ class GameInteractivity extends GameObjects {
 
     // Reset key's dragged state when reapplying
     keyToDrag.classList.remove("awards__img-key--dragged");
+    // Reset key's position
+    keyToDrag.style.position = "static";
 
     // Desktop dragstart
     keyToDrag.addEventListener("dragstart", (e) => {
