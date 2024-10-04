@@ -471,6 +471,40 @@ class GameInteractivity extends GameObjects {
       keyToDrag.classList.add("awards__img-key--dragged"); // Show it's being dragged
     });
 
+    // Desktop dragover
+    chestToDrop.addEventListener("dragover", (e) => {
+      if (refKey && !wasTheChestOpened) {
+        const dropZoneValue = e.target.dataset.zone;
+        const draggedKeyValue = refKey.dataset.key;
+        if (dropZoneValue === draggedKeyValue) {
+          e.preventDefault(); // Allow drop
+          this.#lockCondition(chestToDrop, key, 4); // Show lock opening visual
+        }
+      }
+    });
+
+    // Desktop leave
+    chestToDrop.addEventListener("dragleave", () => {
+      if (!wasTheChestOpened) {
+        this.#lockCondition(chestToDrop, key, 1); // Reset lock visual to closed
+      }
+    });
+    // Desktop drop
+    chestToDrop.addEventListener("drop", (e) => {
+      e.preventDefault();
+      if (refKey && !wasTheChestOpened) {
+        wasTheChestOpened = true;
+        this.#animateChestOpening(chestContainer, key, chestToDrop);
+      }
+    });
+
+    keyToDrag.addEventListener("dragend", () => {
+      if (!wasTheChestOpened) {
+        keyToDrag.classList.remove("awards__img-key--dragged"); // Reset dragged state
+        refKey = null;
+      }
+    });
+
     // Mobile touch start
     keyToDrag.addEventListener("touchstart", (e) => {
       e.preventDefault(); // Prevent default touch behavior
@@ -484,18 +518,6 @@ class GameInteractivity extends GameObjects {
       keyToDrag.style.zIndex = "1000"; // Bring it above other elements
       offsetX = touch.clientX - rect.left;
       offsetY = touch.clientY - rect.top;
-    });
-
-    // Desktop dragover
-    chestToDrop.addEventListener("dragover", (e) => {
-      if (refKey && !wasTheChestOpened) {
-        const dropZoneValue = e.target.dataset.zone;
-        const draggedKeyValue = refKey.dataset.key;
-        if (dropZoneValue === draggedKeyValue) {
-          e.preventDefault(); // Allow drop
-          this.#lockCondition(chestToDrop, key, 4); // Show lock opening visual
-        }
-      }
     });
 
     // Mobile touchmove for dragging
@@ -525,21 +547,6 @@ class GameInteractivity extends GameObjects {
       }
     });
 
-    // Desktop leave
-    chestToDrop.addEventListener("dragleave", () => {
-      if (!wasTheChestOpened) {
-        this.#lockCondition(chestToDrop, key, 1); // Reset lock visual to closed
-      }
-    });
-    // Desktop drop
-    chestToDrop.addEventListener("drop", (e) => {
-      e.preventDefault();
-      if (refKey && !wasTheChestOpened) {
-        wasTheChestOpened = true;
-        this.#animateChestOpening(chestContainer, key, chestToDrop);
-      }
-    });
-
     // For mobile touch end
     document.addEventListener("touchend", () => {
       if (
@@ -553,23 +560,6 @@ class GameInteractivity extends GameObjects {
       ) {
         wasTheChestOpened = true;
         this.#animateChestOpening(chestContainer, key, chestToDrop);
-      }
-
-      keyToDrag.classList.remove("awards__img-key--dragged");
-      keyToDrag.style.position = "static";
-      refKey = null;
-      offsetX = 0;
-      offsetY = 0;
-      touch = null;
-      dropZoneValue = null;
-      draggedKeyValue = null;
-      chestRect = null;
-    });
-
-    keyToDrag.addEventListener("dragend", () => {
-      if (!wasTheChestOpened) {
-        keyToDrag.classList.remove("awards__img-key--dragged"); // Reset dragged state
-        refKey = null;
       }
     });
   }
@@ -629,10 +619,6 @@ class GameInteractivity extends GameObjects {
     } else {
       chestContainer.innerHTML = `<img class="awards__lock awards__lock-${key}"
         src="./assets/icons/chests-animation/nonsence_chest_frame-1.png" alt="Closed lock" draggable="false" data-zone="nonsence">`;
-    }
-    const draggedStatusKey = document.querySelector(`.awards__img-${key}-key`);
-    if (draggedStatusKey) {
-      draggedStatusKey.classList.remove("awards__img-key--dragged");
     }
     // Re-apply the drag-and-drop functionality
     this.#makeKeysDraggableAndSetDragEvents(key);
