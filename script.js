@@ -457,11 +457,20 @@ class GameInteractivity extends GameObjects {
     // Reset key's dragged state when reapplying
     keyToDrag.classList.remove("awards__img-key--dragged");
 
+    // Desktop dragstart
     keyToDrag.addEventListener("dragstart", (e) => {
       refKey = e.target;
       keyToDrag.classList.add("awards__img-key--dragged"); // Show it's being dragged
     });
 
+    // For touch events (mobile)
+    keyToDrag.addEventListener("touchstart", (e) => {
+      e.preventDefault();
+      refKey = e.target;
+      keyToDrag.classList.add("awards__img-key--dragged");
+    });
+
+    // Desktop dragover
     chestToDrop.addEventListener("dragover", (e) => {
       if (refKey && !wasTheChestOpened) {
         const dropZoneValue = e.target.dataset.zone;
@@ -473,18 +482,46 @@ class GameInteractivity extends GameObjects {
       }
     });
 
+    // For mobile touch move
+    document.addEventListener("touchmove", (e) => {
+      if (refKey && !wasTheChestOpened) {
+        const touch = e.touches[0];
+        keyToDrag.style.left = `${touch.clientX}px`;
+        keyToDrag.style.top = `${touch.clientY}px`;
+
+        const dropZoneValue = chestToDrop.dataset.zone;
+        const draggedKeyValue = refKey.dataset.key;
+
+        if (dropZoneValue === draggedKeyValue) {
+          e.preventDefault();
+          this.#lockCondition(chestToDrop, key, 4);
+        }
+      }
+    });
+
+    // Desktop leave
     chestToDrop.addEventListener("dragleave", () => {
       if (!wasTheChestOpened) {
         this.#lockCondition(chestToDrop, key, 1); // Reset lock visual to closed
       }
     });
-
+    // Desktop drop
     chestToDrop.addEventListener("drop", (e) => {
       e.preventDefault();
       if (refKey && !wasTheChestOpened) {
         wasTheChestOpened = true;
         this.#animateChestOpening(chestContainer, key, chestToDrop);
       }
+    });
+
+    // For mobile touch end
+    document.addEventListener("touchend", () => {
+      if (refKey && !wasTheChestOpened) {
+        wasTheChestOpened = true;
+        this.#animateChestOpening(chestContainer, key, chestToDrop);
+      }
+      keyToDrag.classList.remove("awards__img-key--dragged");
+      refKey = null;
     });
 
     keyToDrag.addEventListener("dragend", () => {
