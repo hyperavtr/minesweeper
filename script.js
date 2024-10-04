@@ -457,6 +457,10 @@ class GameInteractivity extends GameObjects {
 
     let offsetX = 0;
     let offsetY = 0;
+    let touch = null;
+    let chestRect = null;
+    let dropZoneValue = null;
+    let draggedKeyValue = null;
 
     // Reset key's dragged state when reapplying
     keyToDrag.classList.remove("awards__img-key--dragged");
@@ -497,15 +501,15 @@ class GameInteractivity extends GameObjects {
     // Mobile touchmove for dragging
     document.addEventListener("touchmove", (e) => {
       if (refKey && !wasTheChestOpened) {
-        const touch = e.touches[0];
+        touch = e.touches[0];
         keyToDrag.style.left = `${touch.clientX - offsetX}px`;
         keyToDrag.style.top = `${touch.clientY - offsetY}px`;
 
-        const dropZoneValue = chestToDrop.dataset.zone;
-        const draggedKeyValue = refKey.dataset.key;
+        dropZoneValue = chestToDrop.dataset.zone;
+        draggedKeyValue = refKey.dataset.key;
 
         // Check if the touch is over the correct drop zone
-        const chestRect = chestToDrop.getBoundingClientRect();
+        chestRect = chestToDrop.getBoundingClientRect();
         if (
           touch.clientX > chestRect.left &&
           touch.clientX < chestRect.right &&
@@ -515,6 +519,8 @@ class GameInteractivity extends GameObjects {
         ) {
           e.preventDefault();
           this.#lockCondition(chestToDrop, key, 4);
+        } else {
+          this.#lockCondition(chestToDrop, key, 1);
         }
       }
     });
@@ -536,15 +542,28 @@ class GameInteractivity extends GameObjects {
 
     // For mobile touch end
     document.addEventListener("touchend", () => {
-      if (refKey && !wasTheChestOpened) {
+      if (
+        refKey &&
+        !wasTheChestOpened &&
+        touch.clientX > chestRect.left &&
+        touch.clientX < chestRect.right &&
+        touch.clientY > chestRect.top &&
+        touch.clientY < chestRect.bottom &&
+        dropZoneValue === draggedKeyValue
+      ) {
         wasTheChestOpened = true;
         this.#animateChestOpening(chestContainer, key, chestToDrop);
       }
+
       keyToDrag.classList.remove("awards__img-key--dragged");
       keyToDrag.style.position = "static";
       refKey = null;
       offsetX = 0;
       offsetY = 0;
+      touch = null;
+      dropZoneValue = null;
+      draggedKeyValue = null;
+      chestRect = null;
     });
 
     keyToDrag.addEventListener("dragend", () => {
