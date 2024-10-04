@@ -467,7 +467,7 @@ class GameInteractivity extends GameObjects {
       keyToDrag.classList.add("awards__img-key--dragged"); // Show it's being dragged
     });
 
-    // For touch events (mobile)
+    // Mobile touch start
     keyToDrag.addEventListener("touchstart", (e) => {
       e.preventDefault(); // Prevent default touch behavior
       refKey = e.target;
@@ -534,29 +534,17 @@ class GameInteractivity extends GameObjects {
       }
     });
 
-    // Mobile touchmove for dragging
-    document.addEventListener("touchmove", (e) => {
+    // For mobile touch end
+    document.addEventListener("touchend", () => {
       if (refKey && !wasTheChestOpened) {
-        const touch = e.touches[0];
-        keyToDrag.style.left = `${touch.clientX - offsetX}px`;
-        keyToDrag.style.top = `${touch.clientY - offsetY}px`;
-
-        const dropZoneValue = chestToDrop.dataset.zone;
-        const draggedKeyValue = refKey.dataset.key;
-
-        // Check if the touch is over the correct drop zone
-        const chestRect = chestToDrop.getBoundingClientRect();
-        if (
-          touch.clientX > chestRect.left &&
-          touch.clientX < chestRect.right &&
-          touch.clientY > chestRect.top &&
-          touch.clientY < chestRect.bottom &&
-          dropZoneValue === draggedKeyValue
-        ) {
-          e.preventDefault();
-          this.#lockCondition(chestToDrop, key, 4);
-        }
+        wasTheChestOpened = true;
+        this.#animateChestOpening(chestContainer, key, chestToDrop);
       }
+      keyToDrag.classList.remove("awards__img-key--dragged");
+      keyToDrag.style.position = "static";
+      refKey = null;
+      offsetX = 0;
+      offsetY = 0;
     });
 
     keyToDrag.addEventListener("dragend", () => {
