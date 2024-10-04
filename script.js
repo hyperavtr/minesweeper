@@ -451,8 +451,12 @@ class GameInteractivity extends GameObjects {
     const keyToDrag = document.querySelector(`.awards__img-${key}-key`);
     const chestToDrop = document.querySelector(`.awards__lock-${key}`);
     const chestContainer = document.querySelector(`.awards__${key}`);
+
     let wasTheChestOpened = false;
     let refKey = null;
+
+    let offsetX = 0;
+    let offsetY = 0;
 
     // Reset key's dragged state when reapplying
     keyToDrag.classList.remove("awards__img-key--dragged");
@@ -465,9 +469,17 @@ class GameInteractivity extends GameObjects {
 
     // For touch events (mobile)
     keyToDrag.addEventListener("touchstart", (e) => {
-      e.preventDefault();
+      e.preventDefault(); // Prevent default touch behavior
       refKey = e.target;
       keyToDrag.classList.add("awards__img-key--dragged");
+
+      // Calculate offsets so the key follows the touch smoothly
+      const touch = e.touches[0];
+      const rect = keyToDrag.getBoundingClientRect();
+      keyToDrag.style.position = "absolute"; // Ensure absolute positioning
+      keyToDrag.style.zIndex = "1000"; // Bring it above other elements
+      offsetX = touch.clientX - rect.left;
+      offsetY = touch.clientY - rect.top;
     });
 
     // Desktop dragover
@@ -482,17 +494,25 @@ class GameInteractivity extends GameObjects {
       }
     });
 
-    // For mobile touch move
+    // Mobile touchmove for dragging
     document.addEventListener("touchmove", (e) => {
       if (refKey && !wasTheChestOpened) {
         const touch = e.touches[0];
-        keyToDrag.style.left = `${touch.clientX}px`;
-        keyToDrag.style.top = `${touch.clientY}px`;
+        keyToDrag.style.left = `${touch.clientX - offsetX}px`;
+        keyToDrag.style.top = `${touch.clientY - offsetY}px`;
 
         const dropZoneValue = chestToDrop.dataset.zone;
         const draggedKeyValue = refKey.dataset.key;
 
-        if (dropZoneValue === draggedKeyValue) {
+        // Check if the touch is over the correct drop zone
+        const chestRect = chestToDrop.getBoundingClientRect();
+        if (
+          touch.clientX > chestRect.left &&
+          touch.clientX < chestRect.right &&
+          touch.clientY > chestRect.top &&
+          touch.clientY < chestRect.bottom &&
+          dropZoneValue === draggedKeyValue
+        ) {
           e.preventDefault();
           this.#lockCondition(chestToDrop, key, 4);
         }
@@ -514,14 +534,29 @@ class GameInteractivity extends GameObjects {
       }
     });
 
-    // For mobile touch end
-    document.addEventListener("touchend", () => {
+    // Mobile touchmove for dragging
+    document.addEventListener("touchmove", (e) => {
       if (refKey && !wasTheChestOpened) {
-        wasTheChestOpened = true;
-        this.#animateChestOpening(chestContainer, key, chestToDrop);
+        const touch = e.touches[0];
+        keyToDrag.style.left = `${touch.clientX - offsetX}px`;
+        keyToDrag.style.top = `${touch.clientY - offsetY}px`;
+
+        const dropZoneValue = chestToDrop.dataset.zone;
+        const draggedKeyValue = refKey.dataset.key;
+
+        // Check if the touch is over the correct drop zone
+        const chestRect = chestToDrop.getBoundingClientRect();
+        if (
+          touch.clientX > chestRect.left &&
+          touch.clientX < chestRect.right &&
+          touch.clientY > chestRect.top &&
+          touch.clientY < chestRect.bottom &&
+          dropZoneValue === draggedKeyValue
+        ) {
+          e.preventDefault();
+          this.#lockCondition(chestToDrop, key, 4);
+        }
       }
-      keyToDrag.classList.remove("awards__img-key--dragged");
-      refKey = null;
     });
 
     keyToDrag.addEventListener("dragend", () => {
@@ -570,7 +605,7 @@ class GameInteractivity extends GameObjects {
       "afterbegin",
       `<div class="award">
         <button class="award__close-btn" aria-label="Close picture"></button>
-        <img src="./assets/images/awards-${key}/marta-${randomPicture}.jpg" alt="award" class="award-img">
+        <img src="./assets/images/awards-${key}/marta-${randomPicture}.jpg" alt="award" class="award__img">
       </div>`,
     );
 
