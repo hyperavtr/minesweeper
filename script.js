@@ -562,6 +562,9 @@ class GameInteractivity extends GameObjects {
       ) {
         wasTheChestOpened = true;
         this.#animateChestOpening(chestContainer, key, chestToDrop);
+      } else {
+        keyToDrag.style.position = "static";
+        keyToDrag.classList.remove("awards__img-key--dragged");
       }
     });
   }
