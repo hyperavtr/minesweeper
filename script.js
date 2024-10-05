@@ -541,7 +541,6 @@ class GameInteractivity extends GameObjects {
           touch.clientY < chestRect.bottom &&
           dropZoneValue === draggedKeyValue
         ) {
-          e.preventDefault();
           this.#lockCondition(chestToDrop, key, 4);
         } else {
           this.#lockCondition(chestToDrop, key, 1);
@@ -584,11 +583,50 @@ class GameInteractivity extends GameObjects {
 
   #animateChestOpening(chestContainer, key, chestToDrop) {
     let frame = 1;
-    let animate = setInterval(() => {
-      chestContainer.innerHTML = `<img src="./assets/icons/explosion_animation/explosion-1-b-${frame}.png" alt="Frame ${key}" draggable="false">`;
-      if (frame === 8) {
-        clearInterval(animate);
-        chestContainer.innerHTML = `<img class="awards__coin" src="./assets/icons/coin.png" alt="Gold" draggable="false">`;
+
+    const loadExplosionFrame = (frameNumber) => {
+      return new Promise((resolve, reject) => {
+        const iconExplosion = new Image(); // Create a new Image object
+        iconExplosion.src = `./assets/icons/explosion_animation/explosion-1-b-${frameNumber}.png`; // Load the corresponding frame image
+        iconExplosion.alt = `Frame ${key}`;
+        iconExplosion.draggable = false;
+
+        iconExplosion.onload = () => resolve(iconExplosion); // Resolve the promise when image is loaded
+        iconExplosion.onerror = () =>
+          reject(new Error(`Failed to load icon for frame ${frameNumber}`)); // Reject on error
+      });
+    };
+
+    const loadCoin = () => {
+      return new Promise((resolve, reject) => {
+        const iconCoin = new Image();
+        iconCoin.src = "./assets/icons/coin.png";
+        iconCoin.alt = "Gold";
+        iconCoin.draggable = "false";
+        iconCoin.className = "awards__coin";
+
+        iconCoin.onload = () => resolve(iconCoin);
+        iconCoin.onerror = () =>
+          reject(new Error(`Failed to load icon for coin`));
+      });
+    };
+
+    const animate = async () => {
+      try {
+        while (frame <= 8) {
+          const loadedFrame = await loadExplosionFrame(frame); // Wait for each image to load
+          chestContainer.innerHTML = ""; // Clear the container before inserting
+          chestContainer.appendChild(loadedFrame); // Insert the loaded image
+
+          frame++;
+          await new Promise((r) => setTimeout(r, 120)); // Delay between frames
+        }
+
+        // After the explosion animation, show the coin
+        const loadedIcon = await loadCoin();
+        chestContainer.innerHTML = "";
+        chestContainer.appendChild(loadedIcon); // Insert the loaded image
+
         setTimeout(() => {
           if (key !== "nonsence") {
             this.#showAward(key, chestContainer, chestToDrop);
@@ -596,9 +634,12 @@ class GameInteractivity extends GameObjects {
             this.#clearProgressConfirmation(key, chestContainer, chestToDrop);
           }
         }, 1000);
+      } catch (error) {
+        console.error("Error during chest opening animation:", error);
       }
-      frame++;
-    }, 120);
+    };
+
+    animate(); // Start the animation
   }
 
   #showAward(key, chestContainer) {
