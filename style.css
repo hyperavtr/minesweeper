@@ -74,9 +74,9 @@
 	--toggle-switch__ball: var(--interface__title--underline);
 	--toggle-switch__bg-toggled: #446967;
 
-	--guess-wrong: #B64C6F;
+	--guess-wrong: #2F2F2F;
 	--guess-wrong__border--light: #B8B291;
-	--guess-wrong__border--dark: #5A2536;
+	--guess-wrong__border--dark: #5D5665;
 }
 
 
@@ -135,9 +135,9 @@
 	--toggle-switch__bg-toggled: var(--interface__border--dark);
 	;
 
-	--guess-wrong: #C46911;
+	--guess-wrong: #337F50;
 	--guess-wrong__border--light: #cbced2;
-	--guess-wrong__border--dark: #2C1704;
+	--guess-wrong__border--dark: black;
 }
 
 .theme--level-hell {
@@ -177,7 +177,7 @@
 	--minesweeper__cell__border--dark: #1D0B1E;
 	--cell--revealed: #220A19;
 	--minesweeper__cell__border--revealed: #832C28;
-	--minesweeper__cell--explosion: var(--interface__title--underline);
+	--minesweeper__cell--explosion: #116F78;
 
 	--minesweeper__timer--text: #FFEAE3;
 	--minesweeper__flag-counter--text: #FFEAE3;
@@ -912,7 +912,7 @@ input:checked+.toggle-switch__slider:before {
 
 .theme--level-hell .minesweeper__cell--revealed-mine {
 	background-image: url(./assets/icons/bomb-hell.png);
-	border: 1px dashed var(--interface__title--underline);
+	border: 1px dashed paleturquoise;
 }
 
 .theme--level-nonsence .minesweeper__cell--revealed-mine {
