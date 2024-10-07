@@ -35,6 +35,8 @@ let totalSeconds = 0;
 let wasTheContinueButtonPressed = false;
 //Awards
 let collectedKeys = JSON.parse(localStorage.getItem("gotKeysFrom")) || [];
+//Double click
+let flagCountDblClick = 0;
 
 //Classes
 class Cells {
@@ -139,6 +141,7 @@ class GameObjects extends Cells {
         currentCell.clue = 0;
 
         const currentCellDirections = {
+          topLeft: document.querySelector(`#c${col - 1}-r${row - 1}`),
           top: document.querySelector(`#c${col}-r${row - 1}`),
           topRight: document.querySelector(`#c${col + 1}-r${row - 1}`),
           right: document.querySelector(`#c${col + 1}-r${row}`),
@@ -146,7 +149,6 @@ class GameObjects extends Cells {
           bottom: document.querySelector(`#c${col}-r${row + 1}`),
           bottomLeft: document.querySelector(`#c${col - 1}-r${row + 1}`),
           left: document.querySelector(`#c${col - 1}-r${row}`),
-          topLeft: document.querySelector(`#c${col - 1}-r${row - 1}`),
         };
 
         Object.values(currentCellDirections).forEach((direction) => {
@@ -223,7 +225,7 @@ class GameInteractivity extends GameObjects {
     let [currCol, currRow] = this.#detectSpatialPosition(e);
     this.#revealCell(currCol, currRow);
   }
-
+  //????
   #detectSpatialPosition(e) {
     let currCol = [];
     let currRow = [];
@@ -288,7 +290,154 @@ class GameInteractivity extends GameObjects {
     this.#revealCell(currCol + 1, currRow + 1); //bottom right
   }
 
-  //2.Right Click
+  //2. Left Double Click
+  leftMouseDoubleClick(e) {
+    this.#handleClick00(e);
+  }
+
+  #handleClick00(e) {
+    if (
+      e.target.parentElement.className !==
+        "minesweeper__cell minesweeper__cell--revealed-safely" ||
+      !isClickable
+    ) {
+      return;
+    }
+
+    const [currCol, currRow] = this.#detectSpatialPositionDblClick(
+      e.target.parentElement.id,
+    );
+    this.#countFlagsAroundClue(currCol - 1, currRow - 1); //top left
+    this.#countFlagsAroundClue(currCol, currRow - 1); //top
+    this.#countFlagsAroundClue(currCol + 1, currRow - 1); //top right
+    this.#countFlagsAroundClue(currCol - 1, currRow); //left
+    this.#countFlagsAroundClue(currCol + 1, currRow); //right
+    this.#countFlagsAroundClue(currCol - 1, currRow + 1); //bottom left
+    this.#countFlagsAroundClue(currCol, currRow + 1); //bottom
+    this.#countFlagsAroundClue(currCol + 1, currRow + 1); //bottom right
+
+    const resultOfTheCheck = this.#checkEqualityOfMinesAndFlags(
+      currCol,
+      currRow,
+    );
+    if (!resultOfTheCheck) {
+      return;
+    }
+
+    this.#revealMinesAroundClue(currCol - 1, currRow - 1); //top left
+    this.#revealMinesAroundClue(currCol, currRow - 1); //top
+    this.#revealMinesAroundClue(currCol + 1, currRow - 1); //top right
+    this.#revealMinesAroundClue(currCol - 1, currRow); //left
+    this.#revealMinesAroundClue(currCol + 1, currRow); //right
+    this.#revealMinesAroundClue(currCol - 1, currRow + 1); //bottom left
+    this.#revealMinesAroundClue(currCol, currRow + 1); //bottom
+    this.#revealMinesAroundClue(currCol + 1, currRow + 1); //bottom right
+
+    this.#eraseDoubleClickTraces();
+  }
+  //????
+  #detectSpatialPositionDblClick(parentElementOfClue) {
+    let currCol = [];
+    let currRow = [];
+    let spatialPosition = "col";
+    for (const char of parentElementOfClue) {
+      if (char === "r") {
+        spatialPosition = "row";
+      }
+      if (!isNaN(Number(char))) {
+        spatialPosition === "col" ? currCol.push(char) : currRow.push(char);
+      }
+    }
+
+    currCol = parseInt(currCol.join(""), 10);
+    currRow = parseInt(currRow.join(""), 10);
+    return [currCol, currRow];
+  }
+
+  #countFlagsAroundClue(currCol, currRow) {
+    const cellToCheck = document.querySelector(`#c${currCol}-r${currRow}`);
+    if (
+      cellToCheck === null ||
+      cellToCheck.classList.contains("minesweeper__cell--revealed-safely")
+    ) {
+      return;
+    }
+
+    if (cellToCheck.classList.contains("minesweeper__cell--victory-flag")) {
+      flagCountDblClick++;
+    }
+  }
+
+  #checkEqualityOfMinesAndFlags(currCol, currRow) {
+    //check if number of flags equal to number of mines around the cell.
+    const cellToCheck = document.querySelector(`#c${currCol}-r${currRow}`);
+    if (+cellToCheck.firstElementChild.textContent !== flagCountDblClick) {
+      flagCountDblClick = 0;
+      return false;
+    } else {
+      flagCountDblClick = 0;
+      return true;
+    }
+  }
+
+  #revealMinesAroundClue(currCol, currRow) {
+    const currCell = document.querySelector(`#c${currCol}-r${currRow}`);
+
+    if (
+      currCell === null ||
+      currCell.classList.contains("minesweeper__cell--revealed-safely")
+    ) {
+      return; //no further revealing
+    }
+
+    if (
+      (currCell.classList.contains("minesweeper__cell--victory-flag") &&
+        currCell.mine === false) ||
+      (!currCell.classList.contains("minesweeper__cell--victory-flag") &&
+        currCell.mine === true)
+    ) {
+      currCell.classList.add("the-double-click-revealed");
+      this.#lose(false, currCell);
+      return; //no further revealing
+    } else {
+      if (currCell.clue > 0 && currCell.childElementCount !== 1) {
+        currCell.classList.add("the-double-click-revealed");
+        currCell.classList.add("minesweeper__cell--revealed-safely");
+        currCell.innerHTML = `<span class="minesweeper__cell--revealed-clue number--${currCell.clue}">${currCell.clue}</span>`;
+        clickCounter++;
+        return;
+      }
+      if (currCell.clue === 0 && currCell.mine == false) {
+        currCell.classList.add("the-double-click-revealed");
+        currCell.classList.add("minesweeper__cell--revealed-safely");
+        clickCounter++;
+        this.#revealMinesAroundClue(currCol - 1, currRow - 1); //top left
+        this.#revealMinesAroundClue(currCol, currRow - 1); //top
+        this.#revealMinesAroundClue(currCol + 1, currRow - 1); //top right
+        this.#revealMinesAroundClue(currCol + 1, currRow); //right
+        this.#revealMinesAroundClue(currCol + 1, currRow + 1); //bottom right
+        this.#revealMinesAroundClue(currCol, currRow + 1); //bottom
+        this.#revealMinesAroundClue(currCol - 1, currRow + 1); //bottom left
+        this.#revealMinesAroundClue(currCol - 1, currRow); //left
+      }
+    }
+  }
+
+  #eraseDoubleClickTraces() {
+    if (resetBtn.classList.contains("minesweeper__reset-btn--lose")) {
+      return;
+    }
+
+    const dblClickRevealedCells = document.querySelectorAll(
+      ".the-double-click-revealed",
+    );
+
+    dblClickRevealedCells.forEach((cell) => {
+      cell.classList.remove("the-double-click-revealed");
+    });
+  }
+
+  //3.Right Click
   rightMouseClick(e) {
     if (isClickable) {
       this.createGameObjects(e);
@@ -314,7 +463,7 @@ class GameInteractivity extends GameObjects {
     }
   }
 
-  //3.Reset
+  //4.Reset
   reset() {
     isClickable = true;
     isThatTheFirstMove = true;
@@ -457,8 +606,8 @@ class GameInteractivity extends GameObjects {
 
     let offsetX = 0;
     let offsetY = 0;
-    let touch = null;
-    let chestRect = null;
+    let touch = 0;
+    let chestRect = 0;
     let dropZoneValue = null;
     let draggedKeyValue = null;
 
@@ -550,6 +699,10 @@ class GameInteractivity extends GameObjects {
 
     // For mobile touch end
     document.addEventListener("touchend", () => {
+      if (wasTheChestOpened) {
+        return;
+      }
+
       if (
         refKey &&
         !wasTheChestOpened &&
@@ -582,8 +735,10 @@ class GameInteractivity extends GameObjects {
   }
 
   #animateChestOpening(chestContainer, key, chestToDrop) {
-    let frame = 1;
+    const frames = []; // Array to hold the preloaded images
+    const totalFrames = 8; // Total number of explosion frames
 
+    // Function to load a single explosion frame
     const loadExplosionFrame = (frameNumber) => {
       return new Promise((resolve, reject) => {
         const iconExplosion = new Image(); // Create a new Image object
@@ -597,6 +752,7 @@ class GameInteractivity extends GameObjects {
       });
     };
 
+    // Function to load the coin image
     const loadCoin = () => {
       return new Promise((resolve, reject) => {
         const iconCoin = new Image();
@@ -613,19 +769,26 @@ class GameInteractivity extends GameObjects {
 
     const animate = async () => {
       try {
-        while (frame <= 8) {
-          const loadedFrame = await loadExplosionFrame(frame); // Wait for each image to load
-          chestContainer.innerHTML = ""; // Clear the container before inserting
-          chestContainer.appendChild(loadedFrame); // Insert the loaded image
+        // Preload all explosion frames
+        for (let i = 1; i <= totalFrames; i++) {
+          const loadedFrame = await loadExplosionFrame(i);
+          frames.push(loadedFrame); // Store the preloaded frame in the array
+        }
 
-          frame++;
-          await new Promise((r) => setTimeout(r, 120)); // Delay between frames
+        // Preload the coin
+        const loadedIcon = await loadCoin();
+
+        // Now that all frames are preloaded, play the animation
+        for (let i = 0; i < frames.length; i++) {
+          chestContainer.innerHTML = ""; // Clear the container before inserting
+          chestContainer.appendChild(frames[i]); // Insert the preloaded image
+
+          await new Promise((r) => setTimeout(r, 100)); // Delay between frames
         }
 
         // After the explosion animation, show the coin
-        const loadedIcon = await loadCoin();
         chestContainer.innerHTML = "";
-        chestContainer.appendChild(loadedIcon); // Insert the loaded image
+        chestContainer.appendChild(loadedIcon); // Insert the loaded coin image
 
         setTimeout(() => {
           if (key !== "nonsence") {
@@ -699,29 +862,29 @@ class GameInteractivity extends GameObjects {
     this.#moveTheKey(key);
   }
 
-  #lose(e) {
+  #lose(e, testCell) {
     this.#pauseStopwatch();
     isClickable = false;
-    e.target.explosion = true;
+
+    e ? (e.target.explosion = true) : (testCell.explosion = true);
+
     resetBtn.classList.add("minesweeper__reset-btn--lose");
     this.#showMines();
     actionPanel.classList.remove("state--hidden");
   }
 
   #showMines() {
-    let minesToShow = this.mines;
     for (let cell of cellField.children) {
       if (cell.mine == true) {
-        cell.classList.add("minesweeper__cell--revealed-mine");
-        minesToShow--;
-        if (cell.explosion == true) {
-          cell.classList.add("minesweeper__cell--explosion");
+        if (!cell.classList.contains("minesweeper__cell--victory-flag")) {
+          cell.classList.add("minesweeper__cell--revealed-mine");
         }
+      }
+      if (cell.explosion == true) {
         if (cell.classList.contains("minesweeper__cell--victory-flag")) {
-          cell.classList.add("minesweeper__cell--victory-flag--guessed-right");
-        }
-        if (minesToShow === 0) {
-          return;
+          cell.classList.add("minesweeper__cell--victory-flag--guessed-wrong");
+        } else {
+          cell.classList.add("minesweeper__cell--explosion");
         }
       }
 
@@ -738,7 +901,7 @@ class GameInteractivity extends GameObjects {
     }
   }
 
-  //4.Continue
+  //5.Continue
   continue() {
     this.#pauseStopwatch();
     this.setStopwatch();
@@ -770,6 +933,36 @@ class GameInteractivity extends GameObjects {
     for (let cell of cursorDefaultCells) {
       cell.classList.remove("minesweeper__cell--cursor-default");
     }
+
+    const guessedWrongCells = document.querySelectorAll(
+      ".minesweeper__cell--victory-flag--guessed-wrong",
+    );
+    for (let cell of guessedWrongCells) {
+      cell.classList.remove("minesweeper__cell--victory-flag--guessed-wrong");
+    }
+
+    this.#returnAfterLostDblClick();
+  }
+
+  #returnAfterLostDblClick() {
+    const dblClickRevealedCells = document.querySelectorAll(
+      ".the-double-click-revealed",
+    );
+
+    if (dblClickRevealedCells.length === 0) {
+      return;
+    }
+
+    const deleteAllExceptThis = new Set([
+      "minesweeper__cell",
+      "minesweeper__cell--victory-flag",
+    ]);
+    dblClickRevealedCells.forEach((cell) => {
+      this.#deleteAllClassesExceptChosen(cell, deleteAllExceptThis);
+      if (cell.innerHTML.match(/[^\s+$]/)) {
+        cell.innerHTML = "";
+      }
+    });
   }
 }
 
@@ -798,6 +991,10 @@ class BindGameInteractivity extends GameInteractivity {
         },
         false,
       );
+
+      cell.addEventListener("dblclick", (e) => {
+        this.leftMouseDoubleClick(e);
+      });
     }
   }
   #bindResetBtnClickToLeftMouseBtn() {
@@ -956,19 +1153,19 @@ class Bar {
 
     const levelGameObjects = new GameObjects(level.columns, level.rows, mines);
 
-    const levelGameActions = new GameInteractivity(
+    const levelGameIneractivity = new GameInteractivity(
       level.columns,
       level.rows,
       levelGameObjects.mines,
     );
-    levelGameActions.reset();
+    levelGameIneractivity.reset();
 
-    const levelBindGameActions = new BindGameInteractivity(
+    const levelBindGameInteractivity = new BindGameInteractivity(
       level.columns,
       level.rows,
       levelGameObjects.mines,
     );
-    levelBindGameActions.bindGameActionsToMouseClicks();
+    levelBindGameInteractivity.bindGameActionsToMouseClicks();
   }
 
   //Theme switcher

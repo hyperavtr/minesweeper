@@ -18,7 +18,7 @@
 	--hell: var(--key-hell);
 	--nonsence: var(--key-nonsence);
 
-	--guess-right: #009E60;
+	/* --guess-right: #007245; */
 }
 
 .theme--level-baby {
@@ -73,6 +73,10 @@
 	--toggle-switch__bg-main: #446967;
 	--toggle-switch__ball: var(--interface__title--underline);
 	--toggle-switch__bg-toggled: #446967;
+
+	--guess-wrong: #B64C6F;
+	--guess-wrong__border--light: #B8B291;
+	--guess-wrong__border--dark: #5A2536;
 }
 
 
@@ -130,6 +134,10 @@
 	--toggle-switch__ball: var(--interface__title--underline);
 	--toggle-switch__bg-toggled: var(--interface__border--dark);
 	;
+
+	--guess-wrong: #C46911;
+	--guess-wrong__border--light: #cbced2;
+	--guess-wrong__border--dark: #2C1704;
 }
 
 .theme--level-hell {
@@ -188,6 +196,11 @@
 	--toggle-switch__bg-main: #484748;
 	--toggle-switch__ball: var(--interface__title--underline);
 	--toggle-switch__bg-toggled: #484748;
+
+	/* guess wrong cell */
+	--guess-wrong: #116F78;
+	--guess-wrong__border--light: #FFEAE3;
+	--guess-wrong__border--dark: #0D545B;
 }
 
 
@@ -246,6 +259,10 @@
 	--toggle-switch__bg-main: var(--interface__border--dark);
 	--toggle-switch__ball: var(--interface__title--underline);
 	--toggle-switch__bg-toggled: var(--interface__border--dark);
+
+	--guess-wrong: #007B00;
+	--guess-wrong__border--light: #B59F97;
+	--guess-wrong__border--dark: #004700;
 }
 
 /* common */
@@ -924,8 +941,11 @@ input:checked+.toggle-switch__slider:before {
 	background-repeat: no-repeat;
 }
 
-.minesweeper__cell--victory-flag--guessed-right {
-	background-color: var(--guess-right);
+.minesweeper__cell--victory-flag--guessed-wrong {
+	background-color: var(--guess-wrong);
+	border: 4px solid var(--guess-wrong__border--light);
+	border-bottom: 4px solid var(--guess-wrong__border--dark);
+	border-right: 4px solid var(--guess-wrong__border--dark);
 	touch-action: none;
 }
 
@@ -936,6 +956,9 @@ input:checked+.toggle-switch__slider:before {
 	cursor: default;
 	user-select: none;
 	touch-action: none;
+	display: flex;
+	justify-content: center;
+	width: 100%;
 }
 
 .number--1 {
