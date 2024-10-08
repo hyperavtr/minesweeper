@@ -23,6 +23,10 @@ const cellField = document.querySelector(".minesweeper__cell-field");
 const actionPanel = document.querySelector(".minesweeper__action-panel");
 const continueBtn = document.querySelector(".minesweeper__continue-btn");
 
+//Array to hold the preloaded explosion frames
+const frames = [];
+//Variable to gold the preloaded coin
+let loadedIcon;
 //Variables ordinary global
 let isClickable = true;
 let isThatTheFirstMove = true;
@@ -735,49 +739,8 @@ class GameInteractivity extends GameObjects {
   }
 
   #animateChestOpening(chestContainer, key, chestToDrop) {
-    const frames = []; // Array to hold the preloaded images
-    const totalFrames = 8; // Total number of explosion frames
-
-    // Function to load a single explosion frame
-    const loadExplosionFrame = (frameNumber) => {
-      return new Promise((resolve, reject) => {
-        const iconExplosion = new Image(); // Create a new Image object
-        iconExplosion.src = `./assets/icons/explosion_animation/explosion-1-b-${frameNumber}.png`; // Load the corresponding frame image
-        iconExplosion.alt = `Frame ${key}`;
-        iconExplosion.draggable = false;
-
-        iconExplosion.onload = () => resolve(iconExplosion); // Resolve the promise when image is loaded
-        iconExplosion.onerror = () =>
-          reject(new Error(`Failed to load icon for frame ${frameNumber}`)); // Reject on error
-      });
-    };
-
-    // Function to load the coin image
-    const loadCoin = () => {
-      return new Promise((resolve, reject) => {
-        const iconCoin = new Image();
-        iconCoin.src = "./assets/icons/coin.png";
-        iconCoin.alt = "Gold";
-        iconCoin.draggable = "false";
-        iconCoin.className = "awards__coin";
-
-        iconCoin.onload = () => resolve(iconCoin);
-        iconCoin.onerror = () =>
-          reject(new Error(`Failed to load icon for coin`));
-      });
-    };
-
     const animate = async () => {
       try {
-        // Preload all explosion frames
-        for (let i = 1; i <= totalFrames; i++) {
-          const loadedFrame = await loadExplosionFrame(i);
-          frames.push(loadedFrame); // Store the preloaded frame in the array
-        }
-
-        // Preload the coin
-        const loadedIcon = await loadCoin();
-
         // Now that all frames are preloaded, play the animation
         for (let i = 0; i < frames.length; i++) {
           chestContainer.innerHTML = ""; // Clear the container before inserting
@@ -1379,6 +1342,51 @@ class ReferenceInfo {
     });
   }
 }
+
+const preloadFrames = async () => {
+  // Function to load a single explosion frame
+  const loadExplosionFrame = (frameNumber) => {
+    return new Promise((resolve, reject) => {
+      const iconExplosion = new Image(); // Create a new Image object
+      iconExplosion.src = `./assets/icons/explosion_animation/explosion-1-b-${frameNumber}.png`; // Load the corresponding frame image
+      iconExplosion.alt = `Frame ${frameNumber}`;
+      iconExplosion.draggable = false;
+
+      iconExplosion.onload = () => resolve(iconExplosion); // Resolve the promise when image is loaded
+      iconExplosion.onerror = () =>
+        reject(new Error(`Failed to load icon for frame ${frameNumber}`)); // Reject on error
+    });
+  };
+
+  // Preload all explosion frames
+  for (let i = 1; i <= 8; i++) {
+    const loadedFrame = await loadExplosionFrame(i);
+    frames.push(loadedFrame); // Store the preloaded frame in the array
+  }
+};
+
+const preloadCoin = async () => {
+  // Function to load the coin image
+  const loadCoin = () => {
+    return new Promise((resolve, reject) => {
+      const iconCoin = new Image();
+      iconCoin.src = "./assets/icons/coin.png";
+      iconCoin.alt = "Gold";
+      iconCoin.draggable = "false";
+      iconCoin.className = "awards__coin";
+
+      iconCoin.onload = () => resolve(iconCoin);
+      iconCoin.onerror = () =>
+        reject(new Error(`Failed to load icon for coin`));
+    });
+  };
+
+  // Preload the coin
+  loadedIcon = await loadCoin();
+};
+
+preloadFrames();
+preloadCoin();
 
 const bar = new Bar();
 bar.loadPreviouslyChosenOrDefaultDifficulty();
