@@ -1260,7 +1260,7 @@ class Bar {
     this.#difficultySwitch(difficultyBtn);
   }
   setDefaultLevel() {
-    this.#difficultySwitch(levelBtns.levelIntermediateBtn);
+    this.#difficultySwitch(levelBtns.levelBabyBtn);
   }
 
   //4.Zoom
