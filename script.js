@@ -405,7 +405,7 @@ class GameInteractivity extends GameObjects {
         currCell.classList.add("minesweeper__cell--revealed-safely");
         currCell.innerHTML = `<span class="minesweeper__cell--revealed-clue number--${currCell.clue}">${currCell.clue}</span>`;
         clickCounter++;
-        return;
+        return; //no further revealing
       }
       if (currCell.clue === 0 && currCell.mine == false) {
         currCell.classList.add("the-double-click-revealed");
@@ -1125,7 +1125,7 @@ class Bar {
           inputs.inputCols.value >= 16 &&
           inputs.inputMines.value >= 99
         ) {
-          this.#themeSwitch(themes, themes.hell);
+          this.#themeSwitch(themes, themes.hell, "hell");
           this.#saveDifficulty(".navbar__btn-nonsence");
           this.#showText("Hell");
         } else {
@@ -1175,6 +1175,7 @@ class Bar {
     });
     body.classList.add(addTheme);
   }
+
   //Save chosen difficulty
   #saveDifficulty(levelBtn) {
     sessionStorage.setItem("minesweeperDifficulty", levelBtn);

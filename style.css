@@ -308,6 +308,7 @@ body {
 	overflow-y: auto;
 	min-height: 100vh;
 	flex: 1;
+	will-change: background-image;
 }
 
 .theme--level-baby {
