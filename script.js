@@ -879,6 +879,10 @@ class GameInteractivity extends GameObjects {
         if (!cell.classList.contains("minesweeper__cell--victory-flag")) {
           cell.classList.add("minesweeper__cell--revealed-mine");
         }
+      } else {
+        if (cell.classList.contains("minesweeper__cell--victory-flag")) {
+          cell.classList.add("minesweeper__cell--victory-flag--guessed-wrong");
+        }
       }
       if (cell.explosion == true) {
         if (cell.classList.contains("minesweeper__cell--victory-flag")) {
@@ -959,6 +963,7 @@ class GameInteractivity extends GameObjects {
     ]);
     dblClickRevealedCells.forEach((cell) => {
       this.#deleteAllClassesExceptChosen(cell, deleteAllExceptThis);
+      delete cell.explosion;
       if (cell.innerHTML.match(/[^\s+$]/)) {
         cell.innerHTML = "";
       }

@@ -135,7 +135,7 @@
 	--toggle-switch__bg-toggled: var(--interface__border--dark);
 	;
 
-	--guess-wrong: #337F50;
+	--guess-wrong: #800000;
 	--guess-wrong__border--light: #cbced2;
 	--guess-wrong__border--dark: black;
 }
