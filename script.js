@@ -783,7 +783,7 @@ class GameInteractivity extends GameObjects {
           chestContainer.innerHTML = ""; // Clear the container before inserting
           chestContainer.appendChild(frames[i]); // Insert the preloaded image
 
-          await new Promise((r) => setTimeout(r, 100)); // Delay between frames
+          await new Promise((r) => setTimeout(r, 120)); // Delay between frames
         }
 
         // After the explosion animation, show the coin
