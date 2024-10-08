@@ -428,7 +428,7 @@ class GameInteractivity extends GameObjects {
       return;
     }
 
-    const dblClickRevealedCells = document.querySelectorAll(
+    const dblClickRevealedCells = cellField.querySelectorAll(
       ".the-double-click-revealed",
     );
 
@@ -934,18 +934,18 @@ class GameInteractivity extends GameObjects {
       cell.classList.remove("minesweeper__cell--cursor-default");
     }
 
-    const guessedWrongCells = document.querySelectorAll(
+    const guessedWrongCells = cellField.querySelectorAll(
       ".minesweeper__cell--victory-flag--guessed-wrong",
     );
     for (let cell of guessedWrongCells) {
       cell.classList.remove("minesweeper__cell--victory-flag--guessed-wrong");
     }
 
-    this.#returnAfterLostDblClick();
+    this.#continueAfterLostDblClick();
   }
 
-  #returnAfterLostDblClick() {
-    const dblClickRevealedCells = document.querySelectorAll(
+  #continueAfterLostDblClick() {
+    const dblClickRevealedCells = cellField.querySelectorAll(
       ".the-double-click-revealed",
     );
 
