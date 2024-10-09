@@ -23,10 +23,6 @@ const cellField = document.querySelector(".minesweeper__cell-field");
 const actionPanel = document.querySelector(".minesweeper__action-panel");
 const continueBtn = document.querySelector(".minesweeper__continue-btn");
 
-//Array to hold the preloaded explosion frames
-const frames = [];
-//Variable to gold the preloaded coin
-let loadedIcon;
 //Variables ordinary global
 let isClickable = true;
 let isThatTheFirstMove = true;
@@ -1343,6 +1339,8 @@ class ReferenceInfo {
   }
 }
 
+//Array to hold the preloaded explosion frames
+const frames = [];
 const preloadFrames = async () => {
   // Function to load a single explosion frame
   const loadExplosionFrame = (frameNumber) => {
@@ -1365,6 +1363,8 @@ const preloadFrames = async () => {
   }
 };
 
+//Variable to hold the preloaded coin
+let loadedIcon;
 const preloadCoin = async () => {
   // Function to load the coin image
   const loadCoin = () => {
